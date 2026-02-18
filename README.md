@@ -4,7 +4,7 @@ The setup_project.sh script automates the creation of an attendance tracker enir
 
 THE SCRIPT CAN DO THE FOLLOWING:
 
-Automated creation of the directory structure, Dynamic editing of config, Signal handling and archiving, Environment checkup fot presence of python3, and Directory structure validation.
+Automated creation of the directory structure, Dynamic editing of config, Signal handling and archiving, Environment checkup for the presence of python3, and Directory structure validation.
 
 HOW TO RUN THE SCRIPT:
 
