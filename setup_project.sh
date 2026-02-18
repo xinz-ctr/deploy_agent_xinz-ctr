@@ -1,0 +1,151 @@
+#!/bin/bash
+
+#Creating the directory structure 
+
+echo "Enter project name: "
+read input
+dir="attendance_tracker_${input}"
+mkdir -p attendance_tracker_"$input"
+touch "$dir"/attendance_checker.py
+mkdir -p "$dir"/Helpers
+touch "$dir"/Helpers/assets.csv
+touch "$dir"/Helpers/config.json
+mkdir -p "$dir"/reports
+touch "$dir"/reports/reports.log
+cat > "$dir/attendance_checker.py" << 'PYEOF'
+import csv
+import json
+import os
+from datetime import datetime
+def run_attendance_check():
+# 1. Load Config
+with open('Helpers/config.json', 'r') as f:
+config = json.load(f)
+# 2. Archive old reports.log if it exists
+if os.path.exists('reports/reports.log'):
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+os.rename('reports/reports.log',
+f'reports/reports_{timestamp}.log.archive')
+# 3. Process Data
+with open('Helpers/assets.csv', mode='r') as f, open('reports/reports.log',
+'w') as log:
+reader = csv.DictReader(f)
+total_sessions = config['total_sessions']
+log.write(f"--- Attendance Report Run: {datetime.now()} ---\n")
+for row in reader:
+name = row['Names']
+email = row['Email']
+attended = int(row['Attendance Count'])
+# Simple Math: (Attended / Total) * 100
+attendance_pct = (attended / total_sessions) * 100
+message = ""
+if attendance_pct < config['thresholds']['failure']:
+message = f"URGENT: {name}, your attendance is {attendance_pct:.1f}
+%. You will fail this class."
+elif attendance_pct < config['thresholds']['warning']:
+message = f"WARNING: {name}, your attendance is
+{attendance_pct:.1f}%. Please be careful."
+if message:
+if config['run_mode'] == "live":
+log.write(f"[{datetime.now()}] ALERT SENT TO {email}: {message}
+\n")
+print(f"Logged alert for {name}")
+else:
+print(f"[DRY RUN] Email to {email}: {message}")
+if __name__ == "__main__":
+run_attendance_check()
+
+PYEOF
+echo "attendance_checker.py created"
+
+cat > "$dir/Helpers/assets.csv" << 'CSVEOF'
+Email Names Attendance Count Absence Count
+alice@example.com Alice Johnson 14 1
+bob@example.com Bob Smith 7 8
+charlie@example.com Charlie Davis 4 11
+diana@example.com Diana Prince 15 0
+
+CSVEOF
+echo "assets.csv created"
+
+cat > "$dir/Helpers/config.json" << 'JSONEOF'
+{
+    "thresholds": {
+        "warning": 75,
+        "failure": 50
+    },
+    "run_mode": "live",
+    "total_sessions": 15
+}
+
+JSONEOF
+echo "config.json created"
+
+cat > "$dir/reports/reports.log" << 'LOGEOF'
+--- Attendance Report Run: 2026-02-06 18:10:01.468726 ---
+[2026-02-06 18:10:01.469363] ALERT SENT TO bob@example.com: URGENT: Bob Smith, your
+attendance is 46.7%. You will fail this class.
+[2026-02-06 18:10:01.469424] ALERT SENT TO charlie@example.com: URGENT: Charlie
+Davis, your attendance is 26.7%. You will fail this class.
+
+LOGEOF
+echo "reports.log created"
+echo "--------------------------------------------"
+
+archive="attendance_tracker_${input}_archive"
+
+#Dynamic congiguration of the config.json file
+
+echo ""
+echo "Do you want to update the attendance thresholds? (y/n)"
+read choice
+
+if [ "$choice" = "y" ] || ["$choice" = "Y" ]; then
+read -p "Enter Warning threshold (default 75): " new_war
+new_war=${new_war:-75}
+read -p "Enter Failure threshold (default 50): " new_fail
+new_fail=${new_fail:-50}
+conf_file="$dir/Helpers/config.json"
+sed -i "s/\"warning\": [0-9]*/\"warning\": $new_war/" "$conf_file"
+sed -i "s/\"failure\": [0-9]*/\"failure\": $new_fail/" "$conf_file"
+echo "Thresholds updated."
+fi
+echo "--------------------------------------------"
+
+# Process Management(The Trap)
+
+cleanup_archive() {
+echo ""
+echo "Interruption detected. Archiving current state..."
+if [ -d "$dir" ]; then
+tar -czf "$archive" "$dir"
+rm -rf "$dir"
+echo "Archived to $archive and removed incomplete directory"
+fi
+exit 1
+}
+trap cleanup_archive SIGINT
+
+# Environment Validation
+
+echo ""
+echo "Checking environment for python3..."
+if python3 --version >/dev/null 2>&1; then
+echo "Python3 detected."
+else
+echo "Warning: Python3 not found."
+fi
+
+echo "--------------------------------------------"
+echo ""
+echo "validating project structure..."
+if [ -f "$dir/attendance_checker.py" ] && [ -f "$dir/Helpers/assets.csv" ] && [ -f "$dir/Helpers/config.json" ] && [ -f "$dir/reports/reports.log" ]; then
+echo "Directory structure verified."
+else
+echo "Structure validation failed."
+exit 1
+fi
+echo "-------------------------------------------"
+echo ""
+echo "Setup complete"
+echo "Project created at: $dir"
