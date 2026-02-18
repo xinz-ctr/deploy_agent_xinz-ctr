@@ -92,7 +92,20 @@ LOGEOF
 echo "reports.log created"
 echo "--------------------------------------------"
 
-archive="attendance_tracker_${input}_archive"
+#Process management (The Trap)
+
+archive_1="attendance_tracker_${input}_archive"
+cleanup_and_archive() {
+echo ""
+echo "Interrupt detected.Archiving current state..."
+if [ -d "$dir" ]; then
+tar -czf "$archive_1" "$dir"
+rm -rf "$dir"
+echo "Archived to $archive_1 and removed incomplete directory"
+fi
+exit 1
+}
+trap cleanup_and_archive SIGINT
 
 #Dynamic congiguration of the config.json file
 
@@ -111,20 +124,6 @@ sed -i "s/\"failure\": [0-9]*/\"failure\": $new_fail/" "$conf_file"
 echo "Thresholds updated."
 fi
 echo "--------------------------------------------"
-
-# Process Management(The Trap)
-
-cleanup_archive() {
-echo ""
-echo "Interruption detected. Archiving current state..."
-if [ -d "$dir" ]; then
-tar -czf "$archive" "$dir"
-rm -rf "$dir"
-echo "Archived to $archive and removed incomplete directory"
-fi
-exit 1
-}
-trap cleanup_archive SIGINT
 
 # Environment Validation
 
