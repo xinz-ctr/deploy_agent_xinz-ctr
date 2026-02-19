@@ -102,11 +102,11 @@ echo "--------------------------------------------"
 archive_1="attendance_tracker_${input}_archive"
 cleanup_and_archive() {
 echo ""
-echo "Interrupt detected.Archiving current state..."
+echo "Interruption has been detected.Archiving the current directory state..."
 if [ -d "$dir" ]; then
 tar -czf "$archive_1" "$dir"
 rm -rf "$dir"
-echo "Archived to $archive_1 and removed incomplete directory"
+echo "Archived to $archive_1 and removed the incomplete directory"
 fi
 exit 1
 }
@@ -119,9 +119,9 @@ echo "Do you want to update the attendance thresholds? (y/n)"
 read choice
 
 if [ "$choice" = "y" ] || ["$choice" = "Y" ]; then
-read -p "Enter Warning threshold (default 75): " new_war
+read -p "Enter the new Warning threshold (default 75): " new_war
 new_war=${new_war:-75}
-read -p "Enter Failure threshold (default 50): " new_fail
+read -p "Enter the new Failure threshold (default 50): " new_fail
 new_fail=${new_fail:-50}
 conf_file="$dir/Helpers/config.json"
 sed -i "s/\"warning\": [0-9]*/\"warning\": $new_war/" "$conf_file"
@@ -133,23 +133,23 @@ echo "--------------------------------------------"
 # Environment Validation
 
 echo ""
-echo "Checking environment for python3..."
+echo "Checking the environment for python3..."
 if python3 --version >/dev/null 2>&1; then
-echo "Python3 detected."
+echo "Python3 has been detected."
 else
-echo "Warning: Python3 not found."
+echo "Warning: Python3 has not been found."
 fi
 
 echo "--------------------------------------------"
 echo ""
-echo "validating project structure..."
+echo "validating the project structure..."
 if [ -f "$dir/attendance_checker.py" ] && [ -f "$dir/Helpers/assets.csv" ] && [ -f "$dir/Helpers/config.json" ] && [ -f "$dir/reports/reports.log" ]; then
-echo "Directory structure verified."
+echo "Directory structure has been verified."
 else
-echo "Structure validation failed."
+echo "Structure validation has failed."
 exit 1
 fi
 echo "-------------------------------------------"
 echo ""
-echo "Setup complete"
-echo "Project created at: $dir"
+echo "The Setup is complete"
+echo "The Project has been created at: $dir"
