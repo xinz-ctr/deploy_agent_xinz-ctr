@@ -1,5 +1,7 @@
 PROJECT: AUTOMATED PROJECT BOOTSTRAPPING AND PROCESS MANAGEMENT
 
+HERE IS A VIDEO EXPLAINING THE PROJECT IN DETAIL [Explanation video](https://drive.google.com/file/d/1ANInxjbKWK0HIEDUo6fiepKEDoPX2aSw/view?usp=sharing).
+
 The setup_project.sh script automates the creation of an attendance tracker enironment
 
 THE SCRIPT CAN DO THE FOLLOWING:
