@@ -15,6 +15,7 @@ After running the script you will be prompted to enter a unique suffix for the d
 
 Then the script will check for the presence of python3 and check if the directory structure is correct.
 
+After that you then go into the attendance_tracker directory you created and run the attendance_checker python file. It will then review the student attendance from assets file and relating to the new thresholds you entered and create a report in the reports directory with a timestamp.
 
 HOW TO TRIGGER THE ARCHIVE FEATURE
 
